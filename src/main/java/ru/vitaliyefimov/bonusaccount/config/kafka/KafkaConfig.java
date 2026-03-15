@@ -1,0 +1,92 @@
+package ru.vitaliyefimov.bonusaccount.config.kafka;
+
+import static org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
+import static org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS;
+import static org.springframework.kafka.support.serializer.JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS;
+import static org.springframework.kafka.support.serializer.JacksonJsonDeserializer.VALUE_DEFAULT_TYPE;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.KafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
+import ru.vitaliyefimov.bonusaccount.dto.client.ClientEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@EnableKafka
+@Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(KafkaConsumers.class)
+public class KafkaConfig {
+
+    private final KafkaConsumers kafkaConsumers;
+    @Value("${spring.kafka.bootstrap-servers}")
+    private final String bootstrapServers;
+
+    @Bean
+    public ConsumerFactory<String, ClientEvent> clientContainerFactory() {
+        return new DefaultKafkaConsumerFactory<>(getJsonConsumerProperties(
+            kafkaConsumers.getClient(),
+            ClientEvent.class
+        ));
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, ClientEvent>>
+        clientListenerContainerFactory(
+        ConsumerFactory<String, ClientEvent> factory
+    ) {
+        KafkaConsumerProperties client = kafkaConsumers.getClient();
+        ConcurrentKafkaListenerContainerFactory<String, ClientEvent> listener =
+            getKafkaListenerContainerFactory(client, factory);
+        listener.setBatchListener(true);
+        return listener;
+    }
+
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> getKafkaListenerContainerFactory(
+        KafkaConsumerProperties consumerProperties,
+        ConsumerFactory<String, T> consumerFactory
+    ) {
+        var listener = new ConcurrentKafkaListenerContainerFactory<String, T>();
+        listener.setConcurrency(consumerProperties.getThreads());
+        listener.setConsumerFactory(consumerFactory);
+        listener.setCommonErrorHandler(getDefaultErrorHandler(consumerProperties.getRetryCount()));
+        listener.getContainerProperties().setIdleBetweenPolls(consumerProperties.getIdleBetweenPolls());
+        return listener;
+    }
+
+    private Map<String, Object> getJsonConsumerProperties(
+        KafkaConsumerProperties consumerProperties,
+        Class<?> deserializerValueClass
+    ) {
+        Map<String, Object> config = new HashMap<>();
+        config.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(GROUP_ID_CONFIG, consumerProperties.getGroupId());
+        config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        config.put(VALUE_DESERIALIZER_CLASS, JacksonJsonDeserializer.class);
+        config.put(VALUE_DEFAULT_TYPE, deserializerValueClass);
+        config.put(USE_TYPE_INFO_HEADERS, false);
+        return config;
+    }
+
+    private DefaultErrorHandler getDefaultErrorHandler(Integer retryCount) {
+        return new DefaultErrorHandler(null, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, retryCount));
+    }
+}

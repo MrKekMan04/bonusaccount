@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.vitaliyefimov.bonusaccount.entity.client.Client;
 
 @Repository
-public interface ClientRepository extends JpaRepository<Client, String> {
+public interface ClientRepository extends JpaRepository<Client, String>, CustomClientRepository {
 
 }
