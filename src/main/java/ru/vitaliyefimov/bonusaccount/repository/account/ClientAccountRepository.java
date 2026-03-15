@@ -8,7 +8,8 @@ import ru.vitaliyefimov.bonusaccount.entity.account.ClientAccountId;
 import java.util.List;
 
 @Repository
-public interface ClientAccountRepository extends JpaRepository<ClientAccount, ClientAccountId> {
+public interface ClientAccountRepository
+    extends JpaRepository<ClientAccount, ClientAccountId>, CustomClientAccountRepository {
 
     List<ClientAccount> findAllByIdClientId(String clientId);
 }

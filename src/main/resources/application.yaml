@@ -8,3 +8,13 @@ spring:
     url: ${DATABASE_URL:}
     username: ${DATABASE_USERNAME:}
     password: ${DATABASE_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+consumer:
+  client:
+    topic: client.events
+    group-id: client.events.bonus-account
+    enabled: true
+    threads: 1
+    retry-count: 10
