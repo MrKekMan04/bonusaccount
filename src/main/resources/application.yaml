@@ -1,3 +1,5 @@
 spring:
   application:
     name: bonusaccount
+  liquibase:
+    change-log: changelog/changelog-master.yml
