@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-15-create-withdraw_request-table
+      author: MrKekMan04
+      changes:
+        - createTable:
+            tableName: withdraw_request
+            columns:
+              - column:
+                  name: client_id
+                  type: text
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: active_balance_amount
+                  type: numeric(19, 2)
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: hold_balance_amount
+                  type: numeric(19, 2)
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: withdraw_balance_amount
+                  type: numeric(19, 2)
+                  constraints:
+                    - nullable: false

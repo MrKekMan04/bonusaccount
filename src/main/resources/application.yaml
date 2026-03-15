@@ -3,3 +3,8 @@ spring:
     name: bonusaccount
   liquibase:
     change-log: changelog/changelog-master.yml
+
+  datasource:
+    url: ${DATABASE_URL:}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}

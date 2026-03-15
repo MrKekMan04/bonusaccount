@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-15-create-withdraw_request-table
+      author: MrKekMan04
+      changes:
+        - createTable:
+            tableName: withdraw_request
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: client_id
+                  type: text
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: status
+                  type: text
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: amount
+                  type: numeric(19, 2)
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: account_number
+                  type: text
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: created_dttm
+                  type: timestamp without timezone
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    - nullable: false
