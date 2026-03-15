@@ -3,3 +3,7 @@ databaseChangeLog:
       file: changelog/changeset/2026-03-15-create-client-table.yml
   - include:
       file: changelog/changeset/2026-03-15-create-client_account-table.yml
+  - include:
+      file: changelog/changeset/2026-03-15-create-balance-table.yml
+  - include:
+      file: changelog/changeset/2026-03-15-create-withdraw_request-table.yml

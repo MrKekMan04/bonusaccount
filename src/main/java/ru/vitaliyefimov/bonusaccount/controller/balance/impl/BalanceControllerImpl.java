@@ -8,8 +8,6 @@ import ru.vitaliyefimov.bonusaccount.dto.balance.GetBalanceResponse;
 import ru.vitaliyefimov.bonusaccount.dto.http.Response;
 import ru.vitaliyefimov.bonusaccount.service.balance.BalanceService;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequiredArgsConstructor
 public class BalanceControllerImpl implements BalanceController {
@@ -23,6 +21,6 @@ public class BalanceControllerImpl implements BalanceController {
 
     @Override
     public Response<GetBalanceResponse> getBalance(String clientId) {
-        return Response.success(new GetBalanceResponse(BigDecimal.ZERO, BigDecimal.ZERO));
+        return Response.success(balanceService.getBalance(clientId));
     }
 }
