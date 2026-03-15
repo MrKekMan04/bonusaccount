@@ -16,6 +16,7 @@ public class BalanceControllerImpl implements BalanceController {
 
     @Override
     public Response<Void> accrueBonuses(AccrueBonusesRequest request) {
+        balanceService.accrueBonuses(request);
         return Response.success();
     }
 
