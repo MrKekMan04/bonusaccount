@@ -18,4 +18,9 @@ public class BalanceDbService {
     public Optional<Balance> findByClientId(String clientId) {
         return balanceRepository.findById(clientId);
     }
+
+    @Transactional
+    public void save(Balance balance) {
+        balanceRepository.save(balance);
+    }
 }
