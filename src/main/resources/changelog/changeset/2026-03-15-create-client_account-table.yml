@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-15-create-client_account-table.yml
+      author: MrKekMan04
+      changes:
+        - createTable:
+            tableName: client_account
+            columns:
+              - column:
+                    name: client_id
+                    type: text
+                    constraints:
+                      primaryKey: true
+              - column:
+                  name: account_number
+                  type: text
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: loyalty_program_code
+                  type: text
+                  constraints:
+                    nullable: false
+        - modifySql:
+            dbms: postgresql
+            append:
+              value: " partition by hash (client_id)"
+
+  - changeSet:
+      id: 2026-03-15-create-client_account-partitions
+      author: MrKekMan04
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: >
+              DO
+              $$
+                  BEGIN
+                      FOR i IN 0..31
+                          LOOP
+                              EXECUTE format(
+                                  'create table client_account_%s partition of client_account for values with (modulus 32, remainder %s) with (fillfactor=90)',
+                                  i, i
+                              );
+                          END LOOP;
+                  END;
+              $$;
+
+  - changeSet:
+      id: 2026-03-15-client-table-avtovacuum-tuning
+      author: MrKekMan04
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: >
+              DO
+              $$
+                  BEGIN
+                      FOR i IN 0..31
+                          LOOP
+                              EXECUTE format('alter table client_account_%s set (autovacuum_vacuum_scale_factor = 0.04)',i);
+                              EXECUTE format('alter table client_account_%s set (autovacuum_analyze_scale_factor = 0.02)',i);
+                              EXECUTE format('alter table client_account_%s set (autovacuum_vacuum_cost_delay = 50)',i);
+                          END LOOP;
+                  END;
+              $$;

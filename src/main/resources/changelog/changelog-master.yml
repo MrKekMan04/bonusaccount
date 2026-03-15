@@ -1,1 +1,5 @@
 databaseChangeLog:
+  - include:
+      file: changelog/changeset/2026-03-15-create-client-table.yml
+  - include:
+      file: changelog/changeset/2026-03-15-create-client_account-table.yml
