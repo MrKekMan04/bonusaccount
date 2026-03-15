@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 2026-03-15-create-withdraw_request-table
+      id: 2026-03-15-create-balance-table
       author: MrKekMan04
       changes:
         - createTable:
-            tableName: withdraw_request
+            tableName: balance
             columns:
               - column:
                   name: client_id
