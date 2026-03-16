@@ -73,9 +73,9 @@ public class KafkaConfig {
         cardEventListenerContainerFactory(
         ConsumerFactory<String, CardEvent> factory
     ) {
-        KafkaConsumerProperties client = kafkaConsumers.getCardEvent();
+        KafkaConsumerProperties cardEvent = kafkaConsumers.getCardEvent();
         ConcurrentKafkaListenerContainerFactory<String, CardEvent> listener =
-            getKafkaListenerContainerFactory(client, factory);
+            getKafkaListenerContainerFactory(cardEvent, factory);
         listener.setBatchListener(true);
         return listener;
     }
