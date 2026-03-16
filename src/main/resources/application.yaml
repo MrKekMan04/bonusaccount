@@ -18,3 +18,9 @@ consumer:
     enabled: true
     threads: 1
     retry-count: 10
+  card-event:
+    topic: card.events
+    group-id: card.events.bonus-account
+    enabled: true
+    threads: 1
+    retry-count: 10
