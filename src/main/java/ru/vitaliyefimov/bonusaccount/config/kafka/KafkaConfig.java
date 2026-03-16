@@ -24,6 +24,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
+import ru.vitaliyefimov.bonusaccount.dto.card.CardEvent;
 import ru.vitaliyefimov.bonusaccount.dto.client.ClientEvent;
 
 import java.util.HashMap;
@@ -54,6 +55,26 @@ public class KafkaConfig {
     ) {
         KafkaConsumerProperties client = kafkaConsumers.getClient();
         ConcurrentKafkaListenerContainerFactory<String, ClientEvent> listener =
+            getKafkaListenerContainerFactory(client, factory);
+        listener.setBatchListener(true);
+        return listener;
+    }
+
+    @Bean
+    public ConsumerFactory<String, CardEvent> cardEventContainerFactory() {
+        return new DefaultKafkaConsumerFactory<>(getJsonConsumerProperties(
+            kafkaConsumers.getClient(),
+            CardEvent.class
+        ));
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, CardEvent>>
+        cardEventListenerContainerFactory(
+        ConsumerFactory<String, CardEvent> factory
+    ) {
+        KafkaConsumerProperties client = kafkaConsumers.getClient();
+        ConcurrentKafkaListenerContainerFactory<String, CardEvent> listener =
             getKafkaListenerContainerFactory(client, factory);
         listener.setBatchListener(true);
         return listener;

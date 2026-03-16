@@ -1,4 +1,4 @@
-package ru.vitaliyefimov.bonusaccount.consumer;
+package ru.vitaliyefimov.bonusaccount.consumer.client;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
