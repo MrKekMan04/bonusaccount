@@ -7,3 +7,5 @@ databaseChangeLog:
       file: changelog/changeset/2026-03-15-create-balance-table.yml
   - include:
       file: changelog/changeset/2026-03-15-create-withdraw_request-table.yml
+  - include:
+      file: changelog/changeset/2026-03-16-add-withdraw_request__created_dttm-idx.yml

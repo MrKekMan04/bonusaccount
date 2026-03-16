@@ -24,3 +24,12 @@ consumer:
     enabled: true
     threads: 1
     retry-count: 10
+
+producer:
+  payment-request:
+    topic: payment.request
+    retry-count: 10
+
+schedule:
+  send-withdraw-request:
+    cron: 0/5 * * * * *

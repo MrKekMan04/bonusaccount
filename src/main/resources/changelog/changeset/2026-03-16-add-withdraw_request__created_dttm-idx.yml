@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2026-03-16-add-withdraw_request__created_dttm-idx
+      author: vit.efimov
+      changes:
+        - createIndex:
+            tableName: withdraw_request
+            indexName: withdraw_request_created_dttm_idx
+            columns:
+              - column:
+                  name: created_dttm
