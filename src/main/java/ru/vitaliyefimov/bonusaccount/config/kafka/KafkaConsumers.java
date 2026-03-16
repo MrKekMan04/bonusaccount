@@ -8,4 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class KafkaConsumers {
 
     private KafkaConsumerProperties client;
+
+    private KafkaConsumerProperties cardEvent;
 }

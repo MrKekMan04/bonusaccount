@@ -63,7 +63,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, CardEvent> cardEventContainerFactory() {
         return new DefaultKafkaConsumerFactory<>(getJsonConsumerProperties(
-            kafkaConsumers.getClient(),
+            kafkaConsumers.getCardEvent(),
             CardEvent.class
         ));
     }
@@ -73,7 +73,7 @@ public class KafkaConfig {
         cardEventListenerContainerFactory(
         ConsumerFactory<String, CardEvent> factory
     ) {
-        KafkaConsumerProperties client = kafkaConsumers.getClient();
+        KafkaConsumerProperties client = kafkaConsumers.getCardEvent();
         ConcurrentKafkaListenerContainerFactory<String, CardEvent> listener =
             getKafkaListenerContainerFactory(client, factory);
         listener.setBatchListener(true);
