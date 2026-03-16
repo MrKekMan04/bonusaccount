@@ -7,14 +7,20 @@ import ru.vitaliyefimov.bonusaccount.dto.card.CardEvent;
 import ru.vitaliyefimov.bonusaccount.entity.balance.Balance;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequest;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequestStatus;
+import ru.vitaliyefimov.bonusaccount.producer.payment.PaymentRequestProducer;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class WithdrawRequestService {
 
+    private static final Duration SEARCH_GAP = Duration.ofDays(2);
+
     private final WithdrawRequestDbService withdrawRequestDbService;
+    private final PaymentRequestProducer paymentRequestProducer;
 
     @Transactional(readOnly = true)
     public Boolean existsById(UUID id) {
@@ -30,5 +36,22 @@ public class WithdrawRequestService {
                 .setAmount(balance.getActiveBalanceAmount())
                 .setAccountNumber(event.accountNumber())
         );
+    }
+
+    public void sendWithdrawRequests() {
+        List<WithdrawRequest> requestsToSent =
+            withdrawRequestDbService.findAllByCreatedDateTimeAndStatus(SEARCH_GAP, WithdrawRequestStatus.NEW);
+
+        requestsToSent.stream()
+            .map(paymentRequestProducer::send)
+            .forEach(future ->
+                future.whenComplete((sr, e) -> {
+                    if (e == null) {
+                        withdrawRequestDbService.setSentById(
+                            UUID.fromString(sr.getProducerRecord().value().requestId())
+                        );
+                    }
+                })
+            );
     }
 }

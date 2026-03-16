@@ -40,5 +40,5 @@ public class WithdrawRequest {
 
     @CreatedDate
     @Column(name = "created_dttm", updatable = false)
-    private Instant createdDatetime;
+    private Instant createdDateTime;
 }

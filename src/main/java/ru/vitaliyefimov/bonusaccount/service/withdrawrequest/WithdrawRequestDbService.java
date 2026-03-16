@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequest;
+import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequestStatus;
 import ru.vitaliyefimov.bonusaccount.repository.withdrawrequest.WithdrawRequestRepository;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,5 +27,22 @@ public class WithdrawRequestDbService {
     @Transactional
     public void save(WithdrawRequest withdrawRequest) {
         withdrawRequestRepository.save(withdrawRequest);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WithdrawRequest> findAllByCreatedDateTimeAndStatus(
+        Duration searchGap,
+        WithdrawRequestStatus withdrawRequestStatus
+    ) {
+        return withdrawRequestRepository.findAllByCreatedDateTimeBetweenAndStatus(
+            Instant.now().minus(searchGap),
+            Instant.now(),
+            withdrawRequestStatus
+        );
+    }
+
+    @Transactional
+    public void setSentById(UUID id) {
+        withdrawRequestRepository.setSentById(id);
     }
 }
