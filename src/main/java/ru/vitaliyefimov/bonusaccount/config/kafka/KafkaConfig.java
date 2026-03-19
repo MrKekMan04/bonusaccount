@@ -35,6 +35,7 @@ import org.springframework.util.backoff.FixedBackOff;
 import ru.vitaliyefimov.bonusaccount.dto.card.CardEvent;
 import ru.vitaliyefimov.bonusaccount.dto.client.ClientEvent;
 import ru.vitaliyefimov.bonusaccount.dto.payment.PaymentRequest;
+import ru.vitaliyefimov.bonusaccount.dto.payment.PaymentResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,6 +86,26 @@ public class KafkaConfig {
     ) {
         KafkaConsumerProperties cardEvent = kafkaConsumers.getCardEvent();
         ConcurrentKafkaListenerContainerFactory<String, CardEvent> listener =
+            getKafkaListenerContainerFactory(cardEvent, factory);
+        listener.setBatchListener(true);
+        return listener;
+    }
+
+    @Bean
+    public ConsumerFactory<String, PaymentResponse> paymentResponseContainerFactory() {
+        return new DefaultKafkaConsumerFactory<>(getJsonConsumerProperties(
+            kafkaConsumers.getPaymentResponse(),
+            PaymentResponse.class
+        ));
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, PaymentResponse>>
+    paymentResponseListenerContainerFactory(
+        ConsumerFactory<String, PaymentResponse> factory
+    ) {
+        KafkaConsumerProperties cardEvent = kafkaConsumers.getPaymentResponse();
+        ConcurrentKafkaListenerContainerFactory<String, PaymentResponse> listener =
             getKafkaListenerContainerFactory(cardEvent, factory);
         listener.setBatchListener(true);
         return listener;

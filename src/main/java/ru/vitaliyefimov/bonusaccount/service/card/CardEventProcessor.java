@@ -22,6 +22,6 @@ public class CardEventProcessor {
                 BLACK_LOYALTY_PROGRAM_CODE.equals(event.loyaltyProgramCode())
                     && SUCCESS_EVENT.equals(event.event())
             )
-            .forEach(balanceService::withdraw);
+            .forEach(balanceService::hold);
     }
 }

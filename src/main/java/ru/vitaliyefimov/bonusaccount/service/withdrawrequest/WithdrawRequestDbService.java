@@ -3,12 +3,14 @@ package ru.vitaliyefimov.bonusaccount.service.withdrawrequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequest;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequestStatus;
 import ru.vitaliyefimov.bonusaccount.repository.withdrawrequest.WithdrawRequestRepository;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,5 +46,16 @@ public class WithdrawRequestDbService {
     @Transactional
     public void setSentById(UUID id) {
         withdrawRequestRepository.setSentById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WithdrawRequest> findAllByIdInAndStatusIn(
+        Collection<UUID> ids,
+        Collection<WithdrawRequestStatus> statuses
+    ) {
+        if (CollectionUtils.isEmpty(ids) || CollectionUtils.isEmpty(statuses)) {
+            return List.of();
+        }
+        return withdrawRequestRepository.findAllByIdInAndStatusIn(ids, statuses);
     }
 }

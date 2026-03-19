@@ -24,6 +24,12 @@ consumer:
     enabled: true
     threads: 1
     retry-count: 10
+  payment-response:
+    topic: payment.response
+    group-id: payment.response.bonus-account
+    enabled: true
+    threads: 1
+    retry-count: 10
 
 producer:
   payment-request:
