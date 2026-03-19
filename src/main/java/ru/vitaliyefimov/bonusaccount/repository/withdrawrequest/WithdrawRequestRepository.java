@@ -8,6 +8,7 @@ import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequest;
 import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequestStatus;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,4 +28,6 @@ public interface WithdrawRequestRepository extends JpaRepository<WithdrawRequest
         where wr.id = :id and wr.status = 'NEW'
         """)
     void setSentById(UUID id);
+
+    List<WithdrawRequest> findAllByIdInAndStatusIn(Collection<UUID> ids, Collection<WithdrawRequestStatus> statuses);
 }

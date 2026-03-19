@@ -10,7 +10,9 @@ import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequestStatu
 import ru.vitaliyefimov.bonusaccount.producer.payment.PaymentRequestProducer;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -53,5 +55,16 @@ public class WithdrawRequestService {
                     }
                 })
             );
+    }
+
+    public List<WithdrawRequest> findAllUnprocessedByIdIn(Collection<UUID> ids) {
+        return withdrawRequestDbService.findAllByIdInAndStatusIn(
+            ids,
+            Set.of(WithdrawRequestStatus.NEW, WithdrawRequestStatus.SENT)
+        );
+    }
+
+    public void save(WithdrawRequest withdrawRequest) {
+        withdrawRequestDbService.save(withdrawRequest);
     }
 }

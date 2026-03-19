@@ -1,12 +1,14 @@
 package ru.vitaliyefimov.bonusaccount.service.balance;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vitaliyefimov.bonusaccount.dto.balance.AccrueBonusesRequest;
 import ru.vitaliyefimov.bonusaccount.dto.balance.GetBalanceResponse;
 import ru.vitaliyefimov.bonusaccount.dto.card.CardEvent;
 import ru.vitaliyefimov.bonusaccount.entity.balance.Balance;
+import ru.vitaliyefimov.bonusaccount.entity.withdrawrequest.WithdrawRequest;
 import ru.vitaliyefimov.bonusaccount.exception.UnprocessableEntityException;
 import ru.vitaliyefimov.bonusaccount.service.client.ClientService;
 import ru.vitaliyefimov.bonusaccount.service.withdrawrequest.WithdrawRequestService;
@@ -14,6 +16,7 @@ import ru.vitaliyefimov.bonusaccount.service.withdrawrequest.WithdrawRequestServ
 import java.math.BigDecimal;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BalanceService {
@@ -49,7 +52,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public void withdraw(CardEvent event) {
+    public void hold(CardEvent event) {
         Optional<Balance> balanceOptional = balanceDbService.findByClientId(event.clientId());
         if (balanceOptional.isEmpty() || withdrawRequestService.existsById(event.id())) {
             return;
@@ -63,5 +66,41 @@ public class BalanceService {
                 )
                 .setActiveBalanceAmount(BigDecimal.ZERO)
         );
+    }
+
+    @Transactional
+    public void withdraw(WithdrawRequest withdrawRequest) {
+        balanceDbService.findByClientId(withdrawRequest.getClientId())
+            .ifPresentOrElse(
+                balance -> {
+                    balance
+                        .setWithdrawBalanceAmount(
+                            balance.getWithdrawBalanceAmount().add(withdrawRequest.getAmount())
+                        )
+                        .setHoldBalanceAmount(
+                            balance.getHoldBalanceAmount().subtract(withdrawRequest.getAmount())
+                        );
+                    balanceDbService.save(balance);
+                },
+                () -> log.error("Balance {} not found", withdrawRequest.getClientId())
+            );
+    }
+
+    @Transactional
+    public void refund(WithdrawRequest withdrawRequest) {
+        balanceDbService.findByClientId(withdrawRequest.getClientId())
+            .ifPresentOrElse(
+                balance -> {
+                    balance
+                        .setActiveBalanceAmount(
+                            balance.getActiveBalanceAmount().add(withdrawRequest.getAmount())
+                        )
+                        .setHoldBalanceAmount(
+                            balance.getHoldBalanceAmount().subtract(withdrawRequest.getAmount())
+                        );
+                    balanceDbService.save(balance);
+                },
+                () -> log.error("Balance {} not found", withdrawRequest.getClientId())
+            );
     }
 }

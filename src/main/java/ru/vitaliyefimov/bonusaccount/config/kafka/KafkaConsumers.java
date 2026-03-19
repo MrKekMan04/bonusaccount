@@ -10,4 +10,6 @@ public class KafkaConsumers {
     private KafkaConsumerProperties client;
 
     private KafkaConsumerProperties cardEvent;
+
+    private KafkaConsumerProperties paymentResponse;
 }
